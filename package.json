@@ -1,0 +1,18 @@
+{
+  "name": "udacity-suply-chain",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/app.js",
+  "scripts": {
+    "dev": "./2_start_node.sh",
+    "ganache": "./1_start_ganache-cli.sh"
+  },
+  "keywords": [],
+  "author": "Sundeep Charan Ramkumar <webdevdesign@sundeepcharan.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "lite-server": "2.4.0",
+    "prettier": "^2.2.1",
+    "prettier-plugin-solidity": "^1.0.0-beta.5"
+  }
+}
