@@ -82,11 +82,16 @@ contract SupplyChain is
     }
 
     // Define a modifier that checks the price and refunds the remaining balance
-    modifier checkValue(uint256 _upc) {
+    modifier checkValue(uint256 _upc, bytes actor) {
         _;
-        uint256 _price = items[_upc].productPrice;
+        Item memory item = items[_upc];
+        uint256 _price = item.productPrice;
         uint256 amountToReturn = msg.value - _price;
-        makePayable(items[_upc].distributorID).transfer(amountToReturn);
+        address actorID =
+            keccak256(actor) == keccak256("distributor")
+                ? item.distributorID
+                : item.consumerID;
+        makePayable(actorID).transfer(amountToReturn);
     }
 
     // Define a modifier that checks if an item.state of a upc is Harvested
@@ -226,10 +231,10 @@ contract SupplyChain is
         // Call modifier to verify caller of this function
         verifyCaller(items[_upc].originFarmerID)
     {
-        transferOwnership(msg.sender);
+        _transferOwnership(msg.sender);
         // Update the appropriate fields
-        Item memory item = items[_upc];
-        item.ownerID = msg.sender;
+        Item storage item = items[_upc];
+        item.ownerID = owner();
         item.itemState = State.Processed;
         // Emit the appropriate event
         emit Processed(_upc);
@@ -246,7 +251,7 @@ contract SupplyChain is
         verifyCaller(items[_upc].originFarmerID)
     {
         // Update the appropriate fields
-        Item memory item = items[_upc];
+        Item storage item = items[_upc];
         item.itemState = State.Packed;
         // Emit the appropriate event
         emit Packed(_upc);
@@ -263,7 +268,7 @@ contract SupplyChain is
         verifyCaller(items[_upc].originFarmerID)
     {
         // Update the appropriate fields
-        Item memory item = items[_upc];
+        Item storage item = items[_upc];
         item.productPrice = _price;
         item.itemState = State.ForSale;
         // Emit the appropriate event
@@ -283,12 +288,12 @@ contract SupplyChain is
         // Call modifer to check if buyer has paid enough
         paidEnough(items[_upc].productPrice)
         // Call modifer to send any excess ether back to buyer
-        checkValue(_upc)
+        checkValue(_upc, "distributor")
     {
-        transferOwnership(msg.sender);
+        _transferOwnership(msg.sender);
         // Update the appropriate fields - ownerID, distributorID, itemState
-        Item memory item = items[_upc];
-        item.ownerID = msg.sender;
+        Item storage item = items[_upc];
+        item.ownerID = owner();
         item.distributorID = msg.sender;
         item.itemState = State.Sold;
         // Transfer money to farmer
@@ -309,7 +314,7 @@ contract SupplyChain is
         verifyCaller(items[_upc].distributorID)
     {
         // Update the appropriate fields
-        Item memory item = items[_upc];
+        Item storage item = items[_upc];
         item.itemState = State.Shipped;
         // Emit the appropriate event
         emit Shipped(_upc);
@@ -325,9 +330,9 @@ contract SupplyChain is
         onlyRetailer
     {
         // Update the appropriate fields - ownerID, retailerID, itemState
-        transferOwnership(msg.sender);
-        Item memory item = items[_upc];
-        item.ownerID = msg.sender;
+        _transferOwnership(msg.sender);
+        Item storage item = items[_upc];
+        item.ownerID = owner();
         item.retailerID = msg.sender;
         item.itemState = State.Received;
         // Emit the appropriate event
@@ -338,17 +343,24 @@ contract SupplyChain is
     // Use the above modifiers to check if the item is received
     function purchaseItem(uint256 _upc)
         public
-        // Call modifier to check if upc has passed previous supply chain stage
-        received(upc)
+        payable
         // Access Control List enforced by calling Smart Contract / DApp
         onlyConsumer
+        // Call modifier to check if upc has passed previous supply chain stage
+        received(_upc)
+        // Call modifer to check if buyer has paid enough
+        paidEnough(items[_upc].productPrice)
+        // Call modifer to send any excess ether back to buyer
+        checkValue(_upc, "consumer")
     {
         // Update the appropriate fields - ownerID, consumerID, itemState
-        transferOwnership(msg.sender);
-        Item memory item = items[_upc];
-        item.ownerID = msg.sender;
+        _transferOwnership(msg.sender);
+        Item storage item = items[_upc];
+        item.ownerID = owner();
         item.consumerID = msg.sender;
         item.itemState = State.Purchased;
+        // Transfer money to distributor
+        makePayable(item.distributorID).transfer(item.productPrice);
         // Emit the appropriate event
         emit Purchased(_upc);
     }
@@ -369,7 +381,7 @@ contract SupplyChain is
         )
     {
         // Assign values to the 8 parameters
-        Item memory item = items[_upc];
+        Item storage item = items[_upc];
         itemSKU = item.sku;
         itemUPC = item.upc;
         ownerID = item.ownerID;
@@ -407,7 +419,7 @@ contract SupplyChain is
         )
     {
         // Assign values to the 9 parameters
-        Item memory item = items[_upc];
+        Item storage item = items[_upc];
         itemSKU = item.sku;
         itemUPC = item.upc;
         productID = item.productID;

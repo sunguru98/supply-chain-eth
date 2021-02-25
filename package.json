@@ -5,14 +5,19 @@
   "main": "src/app.js",
   "scripts": {
     "dev": "./2_start_node.sh",
-    "ganache": "./1_start_ganache-cli.sh"
+    "ganache": "./1_start_ganache-cli.sh",
+    "test": "truffle test"
   },
   "keywords": [],
   "author": "Sundeep Charan Ramkumar <webdevdesign@sundeepcharan.com>",
   "license": "MIT",
   "devDependencies": {
-    "lite-server": "2.4.0",
+    "lite-server": "^2.6.1",
     "prettier": "^2.2.1",
     "prettier-plugin-solidity": "^1.0.0-beta.5"
+  },
+  "dependencies": {
+    "@truffle/hdwallet-provider": "^1.2.2",
+    "truffle": "^4.1.14"
   }
 }

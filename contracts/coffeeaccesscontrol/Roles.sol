@@ -10,7 +10,7 @@ library Roles {
     }
 
     modifier isNotZeroAddress(address account) {
-        require(account != address(0));
+        require(account != address(0), "Zero address received");
         _;
     }
 
@@ -21,7 +21,7 @@ library Roles {
         internal
         isNotZeroAddress(account)
     {
-        require(!has(role, account));
+        require(!has(role, account), "role already exists");
         role.bearer[account] = true;
     }
 
@@ -32,7 +32,7 @@ library Roles {
         internal
         isNotZeroAddress(account)
     {
-        require(has(role, account));
+        require(has(role, account), "role doesnt exist");
         role.bearer[account] = false;
     }
 

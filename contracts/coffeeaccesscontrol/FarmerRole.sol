@@ -16,12 +16,12 @@ contract FarmerRole {
 
     // In the constructor make the address that deploys this contract the 1st farmer
     constructor() public {
-        addFarmer(msg.sender);
+        _addFarmer(msg.sender);
     }
 
     // Define a modifier that checks to see if msg.sender has the appropriate role
     modifier onlyFarmer() {
-        require(isFarmer(msg.sender));
+        require(isFarmer(msg.sender), "caller not farmer");
         _;
     }
 
