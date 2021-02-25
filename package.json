@@ -6,7 +6,10 @@
   "scripts": {
     "dev": "./2_start_node.sh",
     "ganache": "./1_start_ganache-cli.sh",
-    "test": "truffle test"
+    "test": "truffle test",
+    "compile": "truffle compile",
+    "rinkeby": "truffle migrate --reset --network rinkeby",
+    "migrate": "truffle migrate"
   },
   "keywords": [],
   "author": "Sundeep Charan Ramkumar <webdevdesign@sundeepcharan.com>",
