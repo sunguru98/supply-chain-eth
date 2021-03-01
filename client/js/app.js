@@ -78,7 +78,7 @@ App = {
 
   initSupplyChain: function () {
     /// Source the truffle compiled smart contracts
-    var jsonSupplyChain = "../../build/contracts/SupplyChain.json";
+    var jsonSupplyChain = "./contracts/SupplyChain.json";
 
     /// JSONfy the smart contracts
     $.getJSON(jsonSupplyChain, function (data) {
@@ -100,7 +100,7 @@ App = {
 
   handleButtonClick: async function (event) {
     event.preventDefault();
-    const processId = event.target.dataset.id;
+    const processId = parseInt(event.target.dataset.id);
     console.log(processId);
     switch (processId) {
       case 1:
@@ -208,7 +208,7 @@ App = {
 
     App.contracts.SupplyChain.deployed()
       .then(function (instance) {
-        const walletValue = web3.utils.toWei("3", "ether");
+        const walletValue = web3.utils.toWei("1.5", "ether");
         return instance.buyItem(App.upc, {
           from: App.metamaskAccountID,
           value: walletValue,
@@ -260,7 +260,7 @@ App = {
 
     App.contracts.SupplyChain.deployed()
       .then(function (instance) {
-        const walletValue = web3.utils.toWei("3", "ether");
+        const walletValue = web3.utils.toWei("1.5", "ether");
         return instance.purchaseItem(App.upc, {
           from: App.metamaskAccountID,
           value: walletValue,
